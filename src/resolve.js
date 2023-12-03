@@ -49,6 +49,7 @@ function onLookup(addr, callback, err, res) {
 
         let domain = printer.data;
         let name = nameRegex.exec(domain)[1];
+        name = `${name} Mirror`;
 
         let newPrinter = new Printer(addr, name, 631, "", hostname);
 

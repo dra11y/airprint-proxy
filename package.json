@@ -1,6 +1,6 @@
 {
   "name": "airprint-proxy",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "AirPrint proxy for network printers located outside the network",
   "main": "src/index.js",
   "bin": "src/cli.js",
@@ -28,6 +28,7 @@
     "email": "other.marcus@icloud.com"
   },
   "scripts": {
+    "start": "src/cli.js",
     "test": "node src/test.js",
     "lint": "eslint src/*.js"
   },
@@ -35,13 +36,13 @@
     "lib": "src"
   },
   "dependencies": {
-    "dns-socket": "^4.1.1",
-    "multicast-dns": "^6.1.1",
+    "dns-socket": "^4.2.2",
+    "multicast-dns": "^7.2.5",
     "optimist": "^0.6.1",
-    "uuid": "^3.1.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "eslint": "^4.13.1",
-    "eslint-config-google": "^0.9.1"
+    "eslint": "^8.55.0",
+    "eslint-config-google": "^0.14.0"
   }
 }

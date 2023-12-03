@@ -24,14 +24,14 @@
 
 "use strict";
 
-const uuidv5 = require("uuid/v5");
+const uuid = require("uuid");
 const EventEmitter = require("events");
 const utils = require("./utils");
 
 const defaultOptions = {
     "air": "none",
     "note": "",
-    "pdl": [ "image/urf" ],
+    "pdl": ["image/urf"],
     "rp": "ipp/print",
     "TLS": "",
     "UUID": "",
@@ -54,7 +54,7 @@ const defaultOptions = {
     "Transparent": "F",
     "Binary": "F",
     "TBCP": "F",
-    "kind": [ "document", "photo" ],
+    "kind": ["document", "photo"],
 
     // 9.4 Printer Feature TXT Record Keys
     "Color": "U",
@@ -75,8 +75,8 @@ const defaultOptions = {
 const notationMatcher = /^(?:(\w+):\/\/)?(\d+\.\d+\.\d+\.\d+)(?::(\d+)?)?(?:\/(.+))?$/;
 
 function Printer(ip, name, port, notes, host) {
-    if (this instanceof Printer){
-        if (typeof ip !== "string"){
+    if (this instanceof Printer) {
+        if (typeof ip !== "string") {
             console.error("An ip address is necessary to create a proxy.");
             return;
         }
@@ -87,7 +87,7 @@ function Printer(ip, name, port, notes, host) {
         //for the (notation, name, notes) constructor
         if (typeof port === "string" &&
             utils.isUndef(notes) &&
-            utils.isUndef(host)){
+            utils.isUndef(host)) {
             notes = port;
             port = undefined;
         }
@@ -100,7 +100,7 @@ function Printer(ip, name, port, notes, host) {
         this.serviceIpps = this.name + "._ipps._tcp.local";
         this.port = utils.opt(port, matchedResults[3]) || 631;//Default CUPS port
         this.presets = utils.assign({}, defaultOptions);
-        this.uuid = uuidv5(this.host, uuidv5.DNS);
+        this.uuid = uuid.v5(this.host, uuid.v5.DNS);
         this.useIpps = utils.opt(matchedResults[1], "").toLowerCase() === "ipps";
         this.options = {};
 
@@ -185,7 +185,7 @@ Printer.prototype.compileRecordOptions = function () {
         return k + "=" + (Array.isArray(value) ? value.join(",") : String(value));
     });
     return Buffer.concat(optionKeyPairs.map(function (pair) {
-        var buf = new Buffer(Buffer.byteLength(pair, "utf8") + 1);
+        var buf = Buffer.alloc(Buffer.byteLength(pair, "utf8") + 1);
         buf.writeUInt8(Buffer.byteLength(pair, "utf8"), 0);
         buf.write(pair, 1);
         return buf;
