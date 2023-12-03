@@ -184,13 +184,14 @@ Printer.prototype.compileRecordOptions = function () {
         var value = recordOptions[k];
         return k + "=" + (Array.isArray(value) ? value.join(",") : String(value));
     });
-    return Buffer.concat(optionKeyPairs.map(function (pair) {
-        var pairLength = Buffer.byteLength(pair, "utf8");
-        var buf = Buffer.alloc(pairLength + 1);
-        buf.writeUInt8(pairLength, 0);
-        buf.write(pair, 1);
-        return buf;
-    }));
+    return optionKeyPairs;
+    // return Buffer.concat(optionKeyPairs.map(function (pair) {
+    //     var pairLength = Buffer.byteLength(pair, "utf8");
+    //     var buf = Buffer.alloc(pairLength + 1);
+    //     buf.writeUInt8(pairLength, 0);
+    //     buf.write(pair, 1);
+    //     return buf;
+    // }));
 };
 
 module.exports = Printer;
