@@ -1,0 +1,10 @@
+; To direct clients to browse a different domain, substitute that domain in place of '@'
+lb._dns-sd._udp                                 PTR     @
+
+; In the list of services below, the SRV records will typically reference dot-local Multicast DNS names.
+; When transferring this zone file data to your unicast DNS server, you'll need to replace those dot-local
+; names with the correct fully-qualified (unicast) domain name of the target host offering the service.
+
+_ipp._tcp                                       PTR     Canon\032MF650C\032Series\032Mirror._ipp._tcp
+Canon\032MF650C\032Series\032Mirror._ipp._tcp   SRV     0 0 631 Canonc0e652.local. ; Replace with unicast FQDN of target host
+Canon\032MF650C\032Series\032Mirror._ipp._tcp   TXT     "air=none" "note=" "pdl=application/octet-stream,image/urf,image/pwg-raster,image/jpeg,application/pdf" "rp=ipp/print" "TLS=1.2" "UUID=6d4ff0ce-6b11-11d8-8020-40f8dfc0e652" "adminurl=http://Canonc0e652.local:80/airprint.html" "priority=10" "product=(Canon MF650C Series)" "qtotal=1" "txtvers=1" "ty=Canon MF650C Series" "usb_CMD=LIPSLX,CPCA" "usb_MDL=MF650C Series" "usb_MFG=Canon" "URF=ADOBERGB24,CP255,DM1,PQ4,RS300,SRGB24,W8-16,FN3,IS1-4,OB10-40,V1.4" "Transparent=F" "Binary=F" "TBCP=F" "kind=document,envelope,postcard" "Color=T" "Duplex=T" "PaperMax=legal-A4" "Staple=F" "Bind=F" "Collate=F" "Copies=T" "PaperCustom=T" "Punch=0" "Scan=T" "Sort=F" "Fax=T" "rfo=ipp/faxout" "print_wfds=T" "mopria-certified=2.1"

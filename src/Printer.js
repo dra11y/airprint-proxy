@@ -185,9 +185,14 @@ Printer.prototype.compileRecordOptions = function () {
         return k + "=" + (Array.isArray(value) ? value.join(",") : String(value));
     });
     return Buffer.concat(optionKeyPairs.map(function (pair) {
-        var buf = Buffer.alloc(Buffer.byteLength(pair, "utf8") + 1);
-        buf.writeUInt8(Buffer.byteLength(pair, "utf8"), 0);
+        var pairLength = Buffer.byteLength(pair, "utf8");
+        var buf = Buffer.alloc(pairLength + 1);
+        buf.writeUInt8(pairLength, 0);
         buf.write(pair, 1);
+
+        // Logging for debugging
+        console.log(`Pair: ${pair}, Length: ${pairLength}, Buffer:`, buf);
+
         return buf;
     }));
 };
