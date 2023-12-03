@@ -189,10 +189,6 @@ Printer.prototype.compileRecordOptions = function () {
         var buf = Buffer.alloc(pairLength + 1);
         buf.writeUInt8(pairLength, 0);
         buf.write(pair, 1);
-
-        // Logging for debugging
-        console.log(`Pair: ${pair}, Length: ${pairLength}, Buffer:`, buf);
-
         return buf;
     }));
 };
