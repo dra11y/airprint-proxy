@@ -27,7 +27,7 @@
 const mdns = require("multicast-dns")();
 const EventEmitter = require("events");
 const utils = require("./utils");
-const resolvePrinters = require("./resolve");
+const resolveAndCreate = require("./resolve");
 
 function PrinterProxy(){
     this.printers = [];
@@ -237,8 +237,8 @@ PrinterProxy.prototype.addPrinter = function(printer){
  *                 You don't need to add the printers in the callback
  *                 function.
  */
-PrinterProxy.prototype.resolvePrinter = function(address, callback){
-    resolvePrinters(address, function (error, printers) {
+PrinterProxy.prototype.resolvePrinter = function(address, argv, callback){
+    resolveAndCreate(address, argv, function (error, printers) {
         if(typeof callback !== "undefined") callback(error, printers);
         if(error){
             console.error("Error resolving printers from address", error);

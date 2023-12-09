@@ -27,7 +27,9 @@
 const dnsSock = require("dns-socket");
 const Printer = require("./Printer");
 
-function onLookup(addr, callback, err, res) {
+function onLookup(addr, argv, callback, err, res) {
+    console.log(argv);
+
     const nameRegex = /^(.+)\._ipp\._tcp\.local\.*$/;
     this.destroy();
 
@@ -87,14 +89,14 @@ function onLookup(addr, callback, err, res) {
  *                  first argument, the created printer object as second
  *                  argument.
  */
-function resolveAndCreate(addr, callback){
+function resolveAndCreate(addr, argv, callback){
     const client = dnsSock();
     client.query({
         questions: [{
             name: "_ipp._tcp.local.",
             type: "ANY"
         }]
-    }, 5353, addr, onLookup.bind(client, addr, callback));
+    }, 5353, addr, onLookup.bind(client, addr, argv, callback));
 }
 
 module.exports = resolveAndCreate;

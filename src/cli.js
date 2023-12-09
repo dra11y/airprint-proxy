@@ -125,7 +125,7 @@ if(argv.a){
     const ipPattern = /^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$/g;
     if(ipPattern.test(printerUrl)){
         console.info("[*] Resolving printers on " + printerUrl);
-        proxy.resolvePrinter(printerUrl, function (err, printers) {
+        proxy.resolvePrinter(printerUrl, argv, function (err, printers) {
             if(err){
                 console.error("Error: Unable to resolve remote printer - " + err);
                 console.error(" Does your printer allow unicast dns service discovery from your address?");
@@ -175,6 +175,7 @@ if(argv.a){
             process.exit(1);
         }
     }
+
 
     proxy.addPrinter(printer);
     dumpPrinter(printer);
