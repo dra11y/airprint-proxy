@@ -83,6 +83,9 @@ const optParser = require("optimist")
     .options("o", {
         alias: "txt-record",
         describe: "Add additional txt records. (E.g. -o you=me)"
+    })
+    .options("ip", {
+        describe: "Public IP address of printer to broadcast"
     });
 
 function dumpPrinter(printer) {
@@ -120,13 +123,13 @@ var printerUrl = argv._[0];
 
 var proxy = new PrinterProxy();
 
-if(argv.a){
+if (argv.a) {
     printerUrl = printerUrl || argv.a;
     const ipPattern = /^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$/g;
-    if(ipPattern.test(printerUrl)){
+    if (ipPattern.test(printerUrl)) {
         console.info("[*] Resolving printers on " + printerUrl);
         proxy.resolvePrinter(printerUrl, argv, function (err, printers) {
-            if(err){
+            if (err) {
                 console.error("Error: Unable to resolve remote printer - " + err);
                 console.error(" Does your printer allow unicast dns service discovery from your address?");
                 process.exit(1);
@@ -142,7 +145,7 @@ if(argv.a){
         process.exit(1);
     }
 } else {
-    if(typeof printerUrl === "undefined") {
+    if (typeof printerUrl === "undefined") {
         console.error("Error: Please specify the url of this printer. (E.g. ipp://10.35.0.18:631/ipp/print)");
         console.error(" Run the program again with -h flag to receive more information.");
         process.exit(1);
@@ -153,24 +156,24 @@ if(argv.a){
     printer.setOption("Color", argv.color ? "T" : "F");
     printer.setQueue(argv.queue);
 
-    if (argv.m){
-        if (Array.isArray(argv.m)){
+    if (argv.m) {
+        if (Array.isArray(argv.m)) {
             argv.m.forEach(function (mime) {
                 printer.addSupportedMIME(mime);
             });
-        }else printer.addSupportedMIME(argv.m);
+        } else printer.addSupportedMIME(argv.m);
     }
 
-    if (argv.o){
-        if (Array.isArray(argv.o)){
+    if (argv.o) {
+        if (Array.isArray(argv.o)) {
             argv.o.forEach(function (option) {
                 var pair = option.split("=");
                 printer.setOption(pair[0], pair[1] || "");
             });
-        }else if(typeof argv.o === "string") {
+        } else if (typeof argv.o === "string") {
             var pair = argv.o.split("=");
             printer.setOption(pair[0], pair[1] || "");
-        }else {
+        } else {
             console.error("Error: Unable to parse value: %s", argv.o);
             process.exit(1);
         }

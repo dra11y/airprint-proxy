@@ -28,46 +28,45 @@ const dnsSock = require("dns-socket");
 const Printer = require("./Printer");
 
 function onLookup(addr, argv, callback, err, res) {
-    console.log(argv);
-
     const nameRegex = /^(.+)\._ipp\._tcp\.local\.*$/;
     this.destroy();
 
     let results = [];
 
-    if(err){
+    if (err) {
         callback(err, null);
         return;
     }
 
     let hostname = null;
 
-    for(let item of res.additionals){
-        if(item.data === addr) { hostname = item.name; }
+    let public_ip = argv.ip || addr;
+
+    for (let item of res.additionals) {
+        if (item.data === addr) { hostname = item.name; }
     }
 
-    for(let printer of res.answers){
-        if(printer.type !== "PTR") continue;
+    for (let printer of res.answers) {
+        if (printer.type !== "PTR") continue;
 
         let domain = printer.data;
         let name = nameRegex.exec(domain)[1];
-        name = `${name} Mirror`;
 
-        let newPrinter = new Printer(addr, name, 631, "", hostname);
+        let newPrinter = new Printer(public_ip, name, 631, "", hostname);
 
-        for(let info of res.additionals){
-            if(info.name === domain){
-                if(info.type === "SRV"){
+        for (let info of res.additionals) {
+            if (info.name === domain) {
+                if (info.type === "SRV") {
                     newPrinter.port = info.data.port;
-                } else if(info.type === "TXT") {
-                    for(let textBuffer of info.data){
+                } else if (info.type === "TXT") {
+                    for (let textBuffer of info.data) {
                         let text = textBuffer.toString("utf8");
                         let kv = text.split("=");
                         let key = kv[0];
                         let value = kv.slice(1).join("=");
 
-                        if(key === "UUID") newPrinter.uuid = value;
-                        if(key === "pdl") value = value.split(",");
+                        if (key === "UUID") newPrinter.uuid = value;
+                        if (key === "pdl") value = value.split(",");
                         newPrinter.setOption(key, value);
                     }
                 }
@@ -77,7 +76,7 @@ function onLookup(addr, argv, callback, err, res) {
         results.push(newPrinter);
     }
 
-    if(results.length > 0){ callback(null, results); }
+    if (results.length > 0) { callback(null, results); }
     else { callback(new Error("No printer resolved from server"), null); }
 }
 
@@ -89,7 +88,7 @@ function onLookup(addr, argv, callback, err, res) {
  *                  first argument, the created printer object as second
  *                  argument.
  */
-function resolveAndCreate(addr, argv, callback){
+function resolveAndCreate(addr, argv, callback) {
     const client = dnsSock();
     client.query({
         questions: [{

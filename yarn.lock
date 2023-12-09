@@ -99,16 +99,6 @@ acorn-jsx@^5.3.2:
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.11.2.tgz"
   integrity sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==
 
-"airprint-proxy@file:":
-  version "2.0.0"
-  resolved "file:"
-  dependencies:
-    airprint-proxy "file:"
-    dns-socket "^4.2.2"
-    multicast-dns "^7.2.5"
-    optimist "^0.6.1"
-    uuid "^9.0.1"
-
 ajv@^6.12.4:
   version "6.12.6"
   resolved "https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz"
