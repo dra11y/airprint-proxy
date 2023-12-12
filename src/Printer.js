@@ -27,6 +27,7 @@
 const uuid = require("uuid");
 const EventEmitter = require("events");
 const utils = require("./utils");
+const ServiceTypes = require("./ServiceTypes");
 
 const defaultOptions = {
     "air": "none",
@@ -96,8 +97,11 @@ function Printer(ip, name, port, notes, host) {
         //If name is not set, just generate a random name instead
         this.name = name || "Untitled Bonjour Printer " + parseInt(Math.random() * 100000);
         this.host = host || (this.name.toLowerCase().replace(/\s+/g, "-") + ".local");
-        this.service = this.name + "._ipp._tcp.local";
-        this.serviceIpps = this.name + "._ipps._tcp.local";
+        this.service = this.name + "." + ServiceTypes.Ipp;
+        this.serviceIpps = this.name + "." + ServiceTypes.Ipps;
+        this.scannerService = this.name + "." + ServiceTypes.Scanner;
+        this.uScanService = this.name + "." + ServiceTypes.UScan;
+        this.pdlService = this.name + "." + ServiceTypes.Pdl;
         this.port = utils.opt(port, matchedResults[3]) || 631;//Default CUPS port
         this.presets = utils.assign({}, defaultOptions);
         this.uuid = uuid.v5(this.host, uuid.v5.DNS);

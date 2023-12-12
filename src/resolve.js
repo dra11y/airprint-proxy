@@ -28,7 +28,9 @@ const dnsSock = require("dns-socket");
 const Printer = require("./Printer");
 
 function onLookup(addr, argv, callback, err, res) {
-    const nameRegex = /^(.+)\._ipp\._tcp\.local\.*$/;
+    console.log(argv);
+
+    const nameRegex = /^(.+)\._ipps?\._tcp\.local\.*$/;
     this.destroy();
 
     let results = [];
@@ -47,7 +49,10 @@ function onLookup(addr, argv, callback, err, res) {
     }
 
     for (let printer of res.answers) {
-        if (printer.type !== "PTR") continue;
+        if (printer.type !== "PTR") {
+            console.log('SKIP: ' + JSON.stringify(printer))
+            continue;
+        }
 
         let domain = printer.data;
         let name = nameRegex.exec(domain)[1];

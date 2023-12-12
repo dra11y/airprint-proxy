@@ -28,14 +28,23 @@ const mdns = require("multicast-dns")();
 const EventEmitter = require("events");
 const utils = require("./utils");
 const resolveAndCreate = require("./resolve");
+const ServiceTypes = require("./ServiceTypes");
 
-function PrinterProxy(){
+function PrinterProxy() {
     this.printers = [];
-    this.serviceUniversalIpp = "_universal._sub._ipp._tcp.local";
-    this.serviceUniversalIpps = "_universal._sub._ipps._tcp.local";
-    this.serviceIpp = "_ipp._tcp.local";
-    this.serviceIpps = "_ipps._tcp.local";
-    this.proxyService = "_services._dns-sd._udp.local";
+    this.serviceUniversalIpp = ServiceTypes.UniversalIpp;
+    this.serviceUniversalIpps = ServiceTypes.UniversalIpps;
+    this.serviceIpp = ServiceTypes.Ipp;
+    this.serviceIpps = ServiceTypes.Ipps;
+    this.proxyService = ServiceTypes.Proxy;
+
+    this.scannerService = ServiceTypes.Scanner;
+    this.uScanService = ServiceTypes.UScan;
+    // _uscans._tcp N/A
+    // _printer._tcp N/A
+    // _ptp._tcp N/A
+    this.pdlService = ServiceTypes.Pdl;
+
     mdns.on("query", this.onServiceQuery.bind(this));
 }
 
@@ -48,10 +57,11 @@ PrinterProxy.prototype.onServiceQuery = function (query) {
 
         //Discovery
         if (t.type === "PTR") {
-            if(t.name === that.serviceUniversalIpp || t.name === that.serviceIpp)
-                that.onPrinterListRequest(false);
-            else if(t.name === that.serviceUniversalIpps || t.name === that.serviceIpps)
-                that.onPrinterListRequest(true);
+            if (ServiceTypes.Print.includes(t.name)) {
+                that.onPrinterListRequest(ServiceTypes.SecurePrint.includes(t.name), false);
+            } else if (ServiceTypes.Scan.includes(t.name)) {
+                that.onScannerListRequest(false);
+            }
         }
 
         //Address Record
@@ -77,7 +87,7 @@ PrinterProxy.prototype.onServiceQuery = function (query) {
         if (t.type === "TXT") {
             const answers = [];
             that.printers.forEach(function (printer) {
-                if(t.name === printer.service){
+                if (t.name === printer.service) {
                     answers.push({
                         name: printer.service,
                         type: "TXT",
@@ -96,7 +106,7 @@ PrinterProxy.prototype.onServiceQuery = function (query) {
                         ttl: 300,
                         data: printer.ip
                     });
-                }else if(t.name === printer.serviceIpps){
+                } else if (t.name === printer.serviceIpps) {
                     answers.push({
                         name: printer.serviceIpps,
                         type: "TXT",
@@ -122,12 +132,86 @@ PrinterProxy.prototype.onServiceQuery = function (query) {
     });
 };
 
-PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
-    const that = this;
+PrinterProxy.prototype.onScannerListRequest = function (flush) {
+    const proxy = this;
     const flushCache = flush || false;
 
     this.printers.forEach(function (printer) {
-        if(requestIpps && !printer.useIpps) return;
+
+        var answers = [];
+
+        //txt record
+        // answers.push({
+        //     name: printer.scannerService,
+        //     type: "TXT",
+        //     flush: flushCache,
+        //     ttl: 300,
+        //     data: printer.compileRecordOptions()
+        // });
+        //proxy ptr
+        answers.push({
+            name: proxy.proxyService,
+            type: "PTR",
+            flush: flushCache,
+            ttl: 300,
+            data: that.uScanService,
+        });
+        answers.push({
+            name: proxy.proxyService,
+            type: "PTR",
+            flush: flushCache,
+            ttl: 300,
+            data: that.scannerService,
+        });
+        answers.push({
+            name: proxy.scannerService,
+            type: "PTR",
+            ttl: 300,
+            data: printer.scannerService,
+        });
+        answers.push({
+            name: proxy.uScanService,
+            type: "PTR",
+            ttl: 300,
+            data: printer.uScanService,
+        });
+        answers.push({
+            name: printer.uScanService,
+            type: "SRV",
+            flush: flushCache,
+            ttl: 300,
+            data: {
+                port: printer.port,
+                weight: 0,
+                priority: 40,
+                target: printer.host
+            }
+        });
+        answers.push({
+            name: printer.scannerService,
+            type: "SRV",
+            flush: flushCache,
+            ttl: 300,
+            data: {
+                port: printer.port,
+                weight: 0,
+                priority: 40,
+                target: printer.host
+            }
+        });
+
+        mdns.respond({
+            answers: answers
+        });
+    });
+}
+
+PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
+    const proxy = this;
+    const flushCache = flush || false;
+
+    this.printers.forEach(function (printer) {
+        if (requestIpps && !printer.useIpps) return;
 
         var answers = [];
 
@@ -141,7 +225,7 @@ PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
         });
         //proxy ptr
         answers.push({
-            name: that.proxyService,
+            name: proxy.proxyService,
             type: "PTR",
             flush: flushCache,
             ttl: 300,
@@ -149,14 +233,14 @@ PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
         });
         //universal record, point ipp to service
         answers.push({
-            name: requestIpps ? that.serviceUniversalIpps : that.serviceUniversalIpp,
+            name: requestIpps ? proxy.serviceUniversalIpps : proxy.serviceUniversalIpp,
             type: "PTR",
             ttl: 300,
             data: requestIpps ? printer.serviceIpps : printer.service
         });
         //ipp record, point ipp to service
         answers.push({
-            name: requestIpps ? that.serviceIpps : that.serviceIpp,
+            name: requestIpps ? proxy.serviceIpps : proxy.serviceIpp,
             type: "PTR",
             ttl: 300,
             data: requestIpps ? printer.serviceIpps : printer.service
@@ -194,9 +278,9 @@ PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
  *
  * @param {Printer} printer
  */
-PrinterProxy.prototype.addPrinter = function(printer){
+PrinterProxy.prototype.addPrinter = function (printer) {
     //Do not update again
-    if(this.printers.filter(function (t) { return t.uuid === printer.uuid; }).length > 0){
+    if (this.printers.filter(function (t) { return t.uuid === printer.uuid; }).length > 0) {
         return false;
     }
     //Handle updates and readvertise the printer
@@ -220,6 +304,7 @@ PrinterProxy.prototype.addPrinter = function(printer){
     const update = function () {
         this.onPrinterListRequest(false, true);
         this.onPrinterListRequest(true, true);
+        this.onScannerListRequest(true);
     };
 
     printer.on("update", update.bind(this));
@@ -237,10 +322,10 @@ PrinterProxy.prototype.addPrinter = function(printer){
  *                 You don't need to add the printers in the callback
  *                 function.
  */
-PrinterProxy.prototype.resolvePrinter = function(address, argv, callback){
+PrinterProxy.prototype.resolvePrinter = function (address, argv, callback) {
     resolveAndCreate(address, argv, function (error, printers) {
-        if(typeof callback !== "undefined") callback(error, printers);
-        if(error){
+        if (typeof callback !== "undefined") callback(error, printers);
+        if (error) {
             console.error("Error resolving printers from address", error);
             return;
         }

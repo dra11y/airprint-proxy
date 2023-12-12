@@ -26,7 +26,8 @@
 
 "use strict";
 
-const ProxyLib = require("airprint-proxy");
+// const ProxyLib = require("airprint-proxy");
+const ProxyLib = require("../");
 const optParser = require("optimist")
     .usage(
         " ____ _ ____ ___  ____ _ _  _ ___    ___  ____ ____ _  _ _   _     \n" +
