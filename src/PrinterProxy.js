@@ -57,6 +57,11 @@ PrinterProxy.prototype.onServiceQuery = function (query) {
 
         //Discovery
         if (t.type === "PTR") {
+	if (Object.keys(ServiceTypes).includes(t.name)) {
+	console.log(t.name + ' PTR?');
+	} else {
+	console.log('                  ... other query: ' + t.name + ' PTR?');
+	}
             if (ServiceTypes.Print.includes(t.name)) {
                 that.onPrinterListRequest(ServiceTypes.SecurePrint.includes(t.name), false);
             } else if (ServiceTypes.Scan.includes(t.name)) {
@@ -136,6 +141,10 @@ PrinterProxy.prototype.onScannerListRequest = function (flush) {
     const proxy = this;
     const flushCache = flush || false;
 
+	if (!flush) {
+		console.log('onScannerListRequest');
+	}
+
     this.printers.forEach(function (printer) {
 
         var answers = [];
@@ -154,14 +163,14 @@ PrinterProxy.prototype.onScannerListRequest = function (flush) {
             type: "PTR",
             flush: flushCache,
             ttl: 300,
-            data: that.uScanService,
+            data: proxy.uScanService,
         });
         answers.push({
             name: proxy.proxyService,
             type: "PTR",
             flush: flushCache,
             ttl: 300,
-            data: that.scannerService,
+            data: proxy.scannerService,
         });
         answers.push({
             name: proxy.scannerService,
@@ -229,7 +238,7 @@ PrinterProxy.prototype.onPrinterListRequest = function (requestIpps, flush) {
             type: "PTR",
             flush: flushCache,
             ttl: 300,
-            data: requestIpps ? that.serviceIpps : that.serviceIpp
+            data: requestIpps ? proxy.serviceIpps : proxy.serviceIpp
         });
         //universal record, point ipp to service
         answers.push({

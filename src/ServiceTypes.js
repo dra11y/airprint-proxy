@@ -8,7 +8,7 @@ const ServiceTypes = {
 	UScan: "_uscan._tcp.local",
 	Pdl: "_pdl-datastream._tcp.local",
 
-	Print: function() {
+    get Print() {
 		return [
 			this.Ipp,
             this.Ipps,
@@ -16,21 +16,21 @@ const ServiceTypes = {
             this.UniversalIpps,
 			this.Pdl,
         ];
-	},
+    },
 
-    SecurePrint: function() {
+    get SecurePrint() {
         return [
             this.Ipps,
             this.UniversalIpps,
         ];
     },
 
-	Scan: function() {
+    get Scan() {
         return [
             this.UScan,
             this.Scanner,
         ];
-	},
+    },
 }
 
 module.exports = ServiceTypes;
